@@ -1,0 +1,12 @@
+.cache
+straight
+undo
+*~
+tramp
+recentf
+srecode-map.el
+transient
+eln-cache
+url
+.lsp-session*
+

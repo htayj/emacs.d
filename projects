@@ -1,0 +1,12 @@
+;;; -*- lisp-data -*-
+(("/home/tay/zaneyos/") ("/home/tay/effector/effector/")
+ ("/mnt/truenas_ssd/docker/compose/arr/docker-rtorrent-rutorrent/")
+ ("/home/tay/rtorrent/rtorrent/")
+ ("/home/tay/rtorrentmod/compose/docker-rtorrent-rutorrent/")
+ ("/home/tay/arr/autobrr/")
+ ("/home/tay/typescript-projects/flag-hack-ink/flag-hack/")
+ ("/ssh:work:~/terminus/") ("/home/tay/typescript-projects/blessed/")
+ ("/home/tay/purescript/7DRL2021/")
+ ("/home/tay/purescript/purescript-book/") ("/home/tay/terminus/")
+ ("/home/tay/.emacs.vanilla.d/")
+ ("/home/tay/.emacs.d/straight/repos/corfu/"))
