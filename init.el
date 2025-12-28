@@ -149,12 +149,12 @@
 (use-package markdown-mode) ;; required for eglot eldoc
 
 ;; show eldoc in a popup to prevent resizing minibuffer
-(use-package eldoc-box
-  :straight t
-  :config
-  (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
-  (add-hook 'lsp-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
-  (add-hook 'emacs-lisp-mode-hook #'eldoc-box-hover-at-point-mode t))
+;; (use-package eldoc-box
+;;   :straight t
+;;   :config
+;;   (add-hook 'eglot-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
+;;   (add-hook 'lsp-managed-mode-hook #'eldoc-box-hover-at-point-mode t)
+;;   (add-hook 'emacs-lisp-mode-hook #'eldoc-box-hover-at-point-mode t))
 ;; =============================================================================
 ;; handle delimiters
 ;; =============================================================================
