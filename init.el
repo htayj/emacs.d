@@ -407,6 +407,10 @@
 ;;   ((psc-ide-mode corfu-mode flycheck-mode turn-on-purescript-indentation ) . purescript-mode))
 
 
+
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '((shell . t) (sqlite . t)))
 (use-package nix-mode
   :mode "\\.nix\\'")
 
@@ -501,7 +505,13 @@
 (setq display-time-24hr-format nil)
 (setq display-time-format "%H:%M %m/%d")
 (display-time-mode 1)
-
+(add-to-list 'org-latex-classes
+             '("extarticle"
+               "\\documentclass{extarticle}"
+               ("\\section{%s}" . "\\section*{%s}")
+               ("\\subsection{%s}" . "\\subsection*{%s}")
+               ("\\paragraph{%s}" . "\\paragraph*{%s}")
+               ("\\subparagaph{%s}" . "\\subparagraph*{%s}")))
 ;; =============================================================================
 ;; window manager features
 ;; =============================================================================
