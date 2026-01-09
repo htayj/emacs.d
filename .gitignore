@@ -8,5 +8,7 @@ srecode-map.el
 transient
 eln-cache
 url
+projects
 .lsp-session*
-
+TAGS
+elpa
