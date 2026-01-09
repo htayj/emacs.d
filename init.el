@@ -133,18 +133,19 @@
 ;;eglot config
 (require 'eglot)
 (add-to-list 'eglot-server-programs
-             '((tsx-mode) "npx typescript-language-server" "--stdio"))
+             '((tsx-mode) "typescript-language-server --stdio"))
 (add-to-list 'eglot-server-programs
-             '((tsx-ts-mode) "npx typescript-language-server" "--stdio"))
+             '((tsx-ts-mode) "typescript-language-server --stdio"))
 (add-to-list 'eglot-server-programs
              '((js-json-mode) "vscode-json-languageserver" "--stdio"))
 (add-to-list 'eglot-server-programs
              '((typst-ts-mode) "tinymist"))
-
 (add-to-list 'eglot-server-programs '(nix-mode . ("nil")))
+
 (add-hook 'typescript-ts-mode-hook 'eglot-ensure)
 (add-hook 'tsx-ts-mode-hook 'eglot-ensure)
 (add-hook 'nix-mode-hook 'eglot-ensure)
+(add-hook 'typst-ts-mode-hook 'eglot-ensure)
 
 (use-package markdown-mode) ;; required for eglot eldoc
 
