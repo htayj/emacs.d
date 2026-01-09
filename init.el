@@ -406,7 +406,11 @@
 ;;   :hook
 ;;   ((psc-ide-mode corfu-mode flycheck-mode turn-on-purescript-indentation ) . purescript-mode))
 
-
+;; (use-package rec-mode)
+;; (require 'ob-rec)
+;; (org-babel-do-load-languages
+;;  'org-babel-load-languages
+;;  '((rec . t) (shell . t)))
 
 (org-babel-do-load-languages
  'org-babel-load-languages
