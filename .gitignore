@@ -12,3 +12,4 @@ projects
 .lsp-session*
 TAGS
 elpa
+.aider*

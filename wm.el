@@ -156,3 +156,4 @@
 (add-hook 'exwm-update-class-hook
           (lambda ()
             (exwm-workspace-rename-buffer exwm-class-name)))
+(add-to-list 'exwm-manage-configurations '((equal exwm-class-name "Slack") managed t))

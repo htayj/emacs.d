@@ -28,6 +28,7 @@
 ;; (require 'package)
 ;; (setq package-enable-at-startup nil)
 ;; TODO maybe move the rest out of early-init?
+
 ;; (setq package-archives '(("ELPA"  . "http://tromey.com/elpa/")
 ;;                          ("gnu"   . "http://elpa.gnu.org/packages/")
 ;;                          ("melpa" . "https://melpa.org/packages/")
@@ -67,6 +68,7 @@
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 (global-subword-mode t)
+(setq kill-whole-line t)
 (setq indent-tabs-mode nil)
 
 
@@ -98,7 +100,7 @@
 (setq erc-hide-list '("JOIN" "PART" "QUIT"))
 (setq erc-interpret-mirc-color t)
 (setq erc-modules
-			'(completion log notifications hl-nicks netsplit fill button match readonly networks ring autojoin noncommands irccontrols move-to-prompt stamp menu list))
+      '(completion log notifications hl-nicks netsplit fill button match readonly networks ring autojoin noncommands irccontrols move-to-prompt stamp menu list))
 '(erc-prompt-for-password nil)
 (add-to-list 'erc-mode-hook (lambda ()
                               (set (make-local-variable 'scroll-conservatively) 100)))
@@ -114,7 +116,7 @@
 (setq erc-autojoin-timing 'ident)
 
 (setq erc-track-exclude
-			'("##latinitas" "##latin" "#EsperantoAmeriko#1" "#kulupupitokipona#1"))
+      '("##latinitas" "##latin" "#EsperantoAmeriko#1" "#kulupupitokipona#1"))
 (setq erc-interpret-mirc-color t)
 
 ;; =============================================================================
@@ -147,6 +149,7 @@
 (add-hook 'nix-mode-hook 'eglot-ensure)
 (add-hook 'typst-ts-mode-hook 'eglot-ensure)
 
+
 (use-package markdown-mode) ;; required for eglot eldoc
 
 ;; show eldoc in a popup to prevent resizing minibuffer
@@ -168,47 +171,14 @@
   :init
   (add-hook 'prog-mode-hook #'rainbow-delimiters-mode))
 (use-package colorful-mode
-	:custom
+  :custom
   (colorful-use-prefix t)
   (colorful-only-strings 'only-prog)
   (css-fontify-colors nil)
-	:config
+  :config
   (global-colorful-mode t)
   (add-to-list 'global-colorful-modes 'yaml-mode) )
 
-;; =============================================================================
-;; evil mode
-;; =============================================================================
-(use-package evil
-  :init
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  :custom
-  (evil-undo-system 'undo-tree)
-  (evil-search-module 'isearch)
-  :config
-  (evil-mode 1)
-  (setq evil-search-module 'isearch)
-  (define-key evil-insert-state-map (kbd "C-g") 'evil-normal-state))
-
-(use-package evil-collection
-  :after evil
-  :config
-  (evil-collection-init)
-  (setq evil-want-keybinding t)
-  (evil-set-initial-state 'eaf-mode 'emacs)
-  (evil-set-initial-state 'exwm-mode 'emacs))
-
-(use-package evil-surround
-  :config
-  (global-evil-surround-mode 1))
-
-(use-package undo-tree
-  :config
-  (setq undo-tree-history-directory-alist '(("." . "~/.emacs.d/undo")))
-  (global-undo-tree-mode))
-
-;;(add-to-list 'exwm-manage-configurations '((equal exwm-class-name "Slack") managed t))
 ;; =============================================================================
 ;; ibuffer
 ;; =============================================================================
@@ -360,18 +330,6 @@
 
   (corfu-auto t)               ;; Enable auto completion
   (corfu-preselect 'directory) ;; Select the first candidate, except for directories
-  ;; (corfu-cycle t)                ;; Enable cycling for `corfu-next/previous'
-  ;; (corfu-quit-at-boundary nil)   ;; Never quit at completion boundary
-  ;; (corfu-quit-no-match nil)      ;; Never quit, even if there is no match
-  ;; (corfu-preview-current nil)    ;; Disable current candidate preview
-  ;; (corfu-preselect 'prompt)      ;; Preselect the prompt
-  ;; (corfu-on-exact-match nil)     ;; Configure handling of exact matches
-
-  ;; Enable Corfu only for certain modes. See also `global-corfu-modes'.
-  ;; :hook ((prog-mode . corfu-mode)
-  ;;        (shell-mode . corfu-mode)
-  ;;        (eshell-mode . corfu-mode))
-
   :init
 
   ;; Recommended: Enable Corfu globally.  Recommended since many modes provide
@@ -388,6 +346,7 @@
   :straight t
   :bind
   ("s-e" . sudo-edit))
+
 ;; =============================================================================
 ;; magit
 ;; =============================================================================
@@ -403,27 +362,6 @@
 ;; purescript
 (use-package purescript-mode)
 ;; (use-package psc-ide
-;;   :hook
-;;   ((psc-ide-mode corfu-mode flycheck-mode turn-on-purescript-indentation ) . purescript-mode))
-
-;; (use-package rec-mode)
-;; (require 'ob-rec)
-;; (org-babel-do-load-languages
-;;  'org-babel-load-languages
-;;  '((rec . t) (shell . t)))
-
-(org-babel-do-load-languages
- 'org-babel-load-languages
- '((shell . t) (sqlite . t)))
-(use-package nix-mode
-  :mode "\\.nix\\'")
-
-(use-package lsp-mode
-  :init
-  (setq lsp-keymap-prefix "C-c l")
-  :config
-  (add-hook 'purescript-mode-hook #'lsp))
-;; (use-package psc-ide
 ;; :config
 ;; (add-hook 'purescript-mode-hook
 ;;     (lambda ()
@@ -433,27 +371,61 @@
 ;;       (turn-on-purescript-indentation))
 ;; 		)
 ;; )
+
+;; org mode
+(use-package org
+	:config
+	(org-babel-do-load-languages
+	 'org-babel-load-languages
+	 '(;; (rec . t)
+		 (shell . t))))
+
+
+;; nix mode
+(use-package nix-mode
+  :mode "\\.nix\\'")
+
+(use-package lsp-mode
+  :init
+  (setq lsp-keymap-prefix "C-c l")
+  :config
+  (add-hook 'purescript-mode-hook #'lsp))
+
 (use-package typst-ts-mode
   :straight '(:type git :host codeberg :repo "meow_king/typst-ts-mode")
-	:custom
+  :custom
   (typst-ts-watch-options nil)
-	(typst-ts-mode-enable-raw-blocks-highlight t)
-	:config
-	(keymap-set typst-ts-mode-map "C-c C-c" #'typst-ts-tmenu))
+  (typst-ts-mode-enable-raw-blocks-highlight t)
+  :config
+  (keymap-set typst-ts-mode-map "C-c C-c" #'typst-ts-tmenu))
 
 (use-package nushell-ts-mode
   :straight '(:type git :host github :repo "herbertjones/nushell-ts-mode"))
 
+(with-eval-after-load 'ob-rec (org-babel-do-load-languages
+															 'org-babel-load-languages
+															 '((rec . t)
+																 (shell . t))))
 (with-eval-after-load 'eglot
-	(with-eval-after-load 'typst-ts-mode
-		(add-to-list 'eglot-server-programs
+  (with-eval-after-load 'typst-ts-mode
+    (add-to-list 'eglot-server-programs
 								 `((typst-ts-mode) .
 									 ,(eglot-alternatives `(,typst-ts-lsp-download-path
 																					"tinymist"
 																					"typst-lsp"))))))
 
+(use-package paredit
+	:config
+	(enable-paredit-mode)
+	:hook
+	(emacs-lisp-mode . enable-paredit-mode)
+	(lisp-mode . enable-paredit-mode)
+	(typescript-ts-mode . enable-paredit-mode)
+	(org-mode . enable-paredit-mode))
+
 ;; disable bell sound 
 (setq visible-bell 1)
+
 ;; =============================================================================
 ;; prot's themes
 ;; =============================================================================
@@ -504,18 +476,33 @@
   (setf (alist-get 'js-ts-mode apheleia-mode-alist)
 				'(dprint))
   (apheleia-global-mode 1))
+
+
+(use-package expand-region
+	:bind (("C-;" . er/expand-region)))
+
 ;;
 
 (setq display-time-24hr-format nil)
 (setq display-time-format "%H:%M %m/%d")
 (display-time-mode 1)
-(add-to-list 'org-latex-classes
-             '("extarticle"
-               "\\documentclass{extarticle}"
-               ("\\section{%s}" . "\\section*{%s}")
-               ("\\subsection{%s}" . "\\subsection*{%s}")
-               ("\\paragraph{%s}" . "\\paragraph*{%s}")
-               ("\\subparagaph{%s}" . "\\subparagraph*{%s}")))
+(with-eval-after-load 'ox-latex
+	(add-to-list 'org-latex-classes
+							 '("extarticle"
+								 "\\documentclass{extarticle}"
+								 ("\\section{%s}" . "\\section*{%s}")
+								 ("\\subsection{%s}" . "\\subsection*{%s}")
+								 ("\\paragraph{%s}" . "\\paragraph*{%s}")
+								 ("\\subparagaph{%s}" . "\\subparagraph*{%s}"))))
+;; (defun clear-undo-tree ()
+;;   (interactive)
+;;   (setq buffer-undo-tree nil))
+
+(use-package org-transclusion
+  :bind (("S-<f12>" . org-transclusion-add)
+         ("C-c t m" . org-transclusion-transient-menu)))
+(use-package s)
+(use-package dash)
 ;; =============================================================================
 ;; window manager features
 ;; =============================================================================
@@ -542,6 +529,11 @@
 ;; 			 (auth-source-pick-first-password
 ;; 			  :host "matrix.vexillomancy.org"
 ;; 			  :user "tay")))
+;; =============================================================================
+;; ai
+;; =============================================================================
+(load-file "~/.emacs.d/ai.el")
+
 ;;; init.el ends here
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -550,18 +542,16 @@
  ;; If there is more than one, they won't work right.
  '(corfu-quit-no-match t)
  '(custom-safe-themes
-	 '("e5494adf200eeff1505839672150dde6053e086869189c381b1ce9b792dda3a8"
-		 "3b2ae1d19f5843cdc5833266b76e6367744932d96c5ddd713ede9797a2bd93fe"
-		 "8899e88d19a37d39c7187f4bcb5bb596fba990728ef963420b93e2aea5d1666a"
-		 "a1c18db2838b593fba371cb2623abd8f7644a7811ac53c6530eebdf8b9a25a8d"
-		 "ae20535e46a88faea5d65775ca5510c7385cbf334dfa7dde93c0cd22ed663ba0"
-		 "cee5c56dc8b95b345bfe1c88d82d48f89e0f23008b0c2154ef452b2ce348da37"
-		 "1ad12cda71588cc82e74f1cabeed99705c6a60d23ee1bb355c293ba9c000d4ac"
-		 "0b41a4a9f81967daacd737f83d3eac7e3112d642e3f786cf7613de4da97a830a"
-		 "aa545934ce1b6fd16b4db2cf6c2ccf126249a66712786dd70f880806a187ac0b"
-		 default))
- '(ede-project-directories
-	 '("/home/tay/purescript/purescript-book/exercises/chapter5"))
+   '("e5494adf200eeff1505839672150dde6053e086869189c381b1ce9b792dda3a8"
+     "3b2ae1d19f5843cdc5833266b76e6367744932d96c5ddd713ede9797a2bd93fe"
+     "8899e88d19a37d39c7187f4bcb5bb596fba990728ef963420b93e2aea5d1666a"
+     "a1c18db2838b593fba371cb2623abd8f7644a7811ac53c6530eebdf8b9a25a8d"
+     "ae20535e46a88faea5d65775ca5510c7385cbf334dfa7dde93c0cd22ed663ba0"
+     "cee5c56dc8b95b345bfe1c88d82d48f89e0f23008b0c2154ef452b2ce348da37"
+     "1ad12cda71588cc82e74f1cabeed99705c6a60d23ee1bb355c293ba9c000d4ac"
+     "0b41a4a9f81967daacd737f83d3eac7e3112d642e3f786cf7613de4da97a830a"
+     "aa545934ce1b6fd16b4db2cf6c2ccf126249a66712786dd70f880806a187ac0b"
+     default))
  '(eldoc-echo-area-display-truncation-message nil)
  '(eldoc-echo-area-use-multiline-p t)
  '(erc-accidental-paste-threshold-seconds 5)
@@ -569,7 +559,7 @@
  '(erc-fill-column 110)
  '(erc-insert-timestamp-function 'erc-insert-timestamp-left)
  '(erc-modules
-	 '(autojoin button completion fill irccontrols list log match menu
+   '(autojoin button completion fill irccontrols list log match menu
 							move-to-prompt netsplit networks nicks noncommands
 							notifications readonly ring scrolltobottom stamp
 							hl-nicks))
@@ -578,26 +568,28 @@
  '(erc-timestamp-only-if-changed-flag nil)
  '(erc-timestamp-use-align-to nil)
  '(safe-local-variable-values
-	 '((flycheck-gcc-language-standard . "c++11")
-		 (flycheck-clang-language-standard . "c++11")
-		 (flymake-eslint-project-root . "/home/tay/terminus/gui")
-		 (projectile-project-compilation-cmd
-			. "npx lerna run compile --stream")
-		 (projectile-project-test-cmd . "npx lerna run test --stream")
-		 (projectile-project-package-cmd . "../script/build")
-		 (projectile-project-configure-cmd
-			. "npx lerna run clean && npm run bootstrap && npx lerna run compile --stream")
-		 (projectile-project-run-cmd . "npm run dev")
-		 (combobulate-highlight-queries-alist
-			(:language tsx :query
+   '((flycheck-gcc-language-standard . "c++11")
+     (flycheck-clang-language-standard . "c++11")
+     (flymake-eslint-project-root . "/home/tay/terminus/gui")
+     (projectile-project-compilation-cmd
+      . "npx lerna run compile --stream")
+     (projectile-project-test-cmd . "npx lerna run test --stream")
+     (projectile-project-package-cmd . "../script/build")
+     (projectile-project-configure-cmd
+      . "npx lerna run clean && npm run bootstrap && npx lerna run compile --stream")
+     (projectile-project-run-cmd . "npm run dev")
+     (combobulate-highlight-queries-alist
+      (:language tsx :query
 								 "(program\12 (import_statement\12  (import_clause\12   (named_imports\12    (import_specifier (identifier) @hl.default)))))"))))
  '(straight-recipes-gnu-elpa-url "https://github.com/emacsmirror/gnu_elpa")
- '(tab-width 2))
+ '(tab-width 2)
+ '(undo-tree-auto-save-history nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background "#000000" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 142 :width normal :foundry "simp" :family "Hack")))))
+ '(default ((t (:inherit nil :extend nil :stipple nil :background "#000000" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 142 :width normal :foundry "simp" :family "Hack"))))
+ '(symex-highlight-face ((t (:extend nil :background "dim gray")))))
 
 
