@@ -1,4 +1,6 @@
 .cache
+.codex
+.org-id-locations
 straight
 undo
 *~

@@ -3,7 +3,7 @@
 ;; Copyright (C) 2025 Taylor Hardy
 ;;
 ;; Author: Taylor Hardy
-;; Maintainer: Taylor Hardy 
+;; Maintainer: Taylor Hardy
 ;; Created: April 15, 2025
 ;; Modified: April 15, 2025
 ;; Version: 0.0.1
@@ -207,7 +207,7 @@
   (completion-category-defaults nil)
   (completion-category-overrides '((file (styles partial-completion)))))
 
-;; show more info in minibuffer 
+;; show more info in minibuffer
 (use-package marginalia
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the
@@ -307,7 +307,7 @@
    consult-theme :preview-key '(:debounce 0.2 any)
    consult-ripgrep consult-git-grep consult-grep consult-man
    consult-bookmark consult-recent-file consult-xref
-   consult--source-bookmark consult--source-file-register
+	 ;;   consult--source-bookmark consult--source-file-register
    consult--source-recent-file consult--source-project-recent-file
    ;; :preview-key "M-."
    :preview-key '(:debounce 0.4 any))
@@ -372,6 +372,74 @@
 ;; 		)
 ;; )
 
+(use-package slime
+  :preface
+  ;; Prefer the Guix-packaged SLIME over any straight checkout.
+  (setq load-path
+        (let (filtered)
+          (dolist (path load-path (nreverse filtered))
+            (unless (and path
+                         (string-match-p
+                          "/straight/\\(build\\|repos\\)/slime\\(?:/\\|$\\)"
+                          path))
+              (push path filtered)))))
+  (defun my/guix-host-executable (program)
+    "Return PROGRAM from PATH or common Guix profile locations."
+    (let ((home (or (getenv "HOME") (expand-file-name "~"))))
+      (or (executable-find program)
+          (catch 'found
+            (dolist (candidate
+                     (list (expand-file-name
+                            (concat ".guix-home/profile/bin/" program)
+                            home)
+                           (expand-file-name
+                            (concat ".guix-profile/bin/" program)
+                            home)
+                           (concat "/run/current-system/profile/bin/" program)
+                           (concat "/etc/profiles/per-user/"
+                                   (user-login-name)
+                                   "/bin/"
+                                   program)))
+              (when (file-executable-p candidate)
+                (throw 'found candidate)))))))
+  :straight nil
+  :ensure nil
+  :commands (slime slime-selector)
+  :bind (("C-c s" . slime)
+         ("C-c C-s" . slime-selector))
+  :init
+  (let* ((slime-library (locate-library "slime"))
+         (slime-root (and slime-library
+                          (file-name-directory slime-library)))
+         (sbcl (my/guix-host-executable "sbcl")))
+    (setq slime-contribs '(slime-repl
+                           slime-autodoc
+                           slime-asdf
+                           slime-tramp
+                           slime-indentation
+                           slime-scratch)
+          ;; Avoid `slime-c-p-c' here: on this host it sometimes leaves
+          ;; Emacs calling `swank:completions' before that contrib is active.
+          slime-completion-at-point-functions
+          '(slime-filename-completion slime-simple-completion-at-point)
+          slime-complete-symbol-function nil
+          slime-repl-history-file (locate-user-emacs-file ".slime-history.eld"))
+    (when slime-root
+      (setq slime-path slime-root)
+      (add-to-list 'load-path (expand-file-name "contrib" slime-root)))
+    (when sbcl
+      (setq inferior-lisp-program sbcl
+            slime-default-lisp 'sbcl
+            slime-lisp-implementations
+            `((sbcl (,sbcl "--dynamic-space-size" "2048"))))))
+  :config
+  (slime-setup slime-contribs)
+  (add-hook 'slime-mode-hook #'slime-autodoc-mode)
+  (unless inferior-lisp-program
+    (display-warning
+     'init
+     "SLIME is enabled, but SBCL was not found in PATH or a standard Guix profile."
+     :warning)))
 ;; org mode
 (use-package org
 	:config
@@ -423,7 +491,7 @@
 	(typescript-ts-mode . enable-paredit-mode)
 	(org-mode . enable-paredit-mode))
 
-;; disable bell sound 
+;; disable bell sound
 (setq visible-bell 1)
 
 ;; =============================================================================
@@ -503,6 +571,19 @@
          ("C-c t m" . org-transclusion-transient-menu)))
 (use-package s)
 (use-package dash)
+(use-package openclaw
+  :straight (openclaw :type git :host github :repo "Kyvero-Vexus/openclaw.el")
+	:ensure t
+  :config
+  (require 'subr-x)
+  (setq openclaw-gateway-url "ws://localhost:18789")
+  (setq openclaw-gateway-token
+        (or (getenv "OPENCLAW_GATEWAY_TOKEN")
+            (let ((token-file (expand-file-name "~/.local/state/openclaw/gateway-token")))
+              (when (file-readable-p token-file)
+                (with-temp-buffer
+                  (insert-file-contents token-file)
+                  (string-trim (buffer-string)))))))))
 ;; =============================================================================
 ;; window manager features
 ;; =============================================================================
@@ -533,63 +614,16 @@
 ;; ai
 ;; =============================================================================
 (load-file "~/.emacs.d/ai.el")
+(load-file "~/.emacs.d/evil.el")
+;; guix
+(use-package guix
+	:straight nil
+	:ensure nil
+	:bind (("H-A-g" . guix)))
+(use-package stumpwm-mode)
+
 
 ;;; init.el ends here
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(corfu-quit-no-match t)
- '(custom-safe-themes
-   '("e5494adf200eeff1505839672150dde6053e086869189c381b1ce9b792dda3a8"
-     "3b2ae1d19f5843cdc5833266b76e6367744932d96c5ddd713ede9797a2bd93fe"
-     "8899e88d19a37d39c7187f4bcb5bb596fba990728ef963420b93e2aea5d1666a"
-     "a1c18db2838b593fba371cb2623abd8f7644a7811ac53c6530eebdf8b9a25a8d"
-     "ae20535e46a88faea5d65775ca5510c7385cbf334dfa7dde93c0cd22ed663ba0"
-     "cee5c56dc8b95b345bfe1c88d82d48f89e0f23008b0c2154ef452b2ce348da37"
-     "1ad12cda71588cc82e74f1cabeed99705c6a60d23ee1bb355c293ba9c000d4ac"
-     "0b41a4a9f81967daacd737f83d3eac7e3112d642e3f786cf7613de4da97a830a"
-     "aa545934ce1b6fd16b4db2cf6c2ccf126249a66712786dd70f880806a187ac0b"
-     default))
- '(eldoc-echo-area-display-truncation-message nil)
- '(eldoc-echo-area-use-multiline-p t)
- '(erc-accidental-paste-threshold-seconds 5)
- '(erc-ask-about-multiline-input t)
- '(erc-fill-column 110)
- '(erc-insert-timestamp-function 'erc-insert-timestamp-left)
- '(erc-modules
-   '(autojoin button completion fill irccontrols list log match menu
-							move-to-prompt netsplit networks nicks noncommands
-							notifications readonly ring scrolltobottom stamp
-							hl-nicks))
- '(erc-pals '("Ammonium8755" "FlowPlay"))
- '(erc-timestamp-intangible t)
- '(erc-timestamp-only-if-changed-flag nil)
- '(erc-timestamp-use-align-to nil)
- '(safe-local-variable-values
-   '((flycheck-gcc-language-standard . "c++11")
-     (flycheck-clang-language-standard . "c++11")
-     (flymake-eslint-project-root . "/home/tay/terminus/gui")
-     (projectile-project-compilation-cmd
-      . "npx lerna run compile --stream")
-     (projectile-project-test-cmd . "npx lerna run test --stream")
-     (projectile-project-package-cmd . "../script/build")
-     (projectile-project-configure-cmd
-      . "npx lerna run clean && npm run bootstrap && npx lerna run compile --stream")
-     (projectile-project-run-cmd . "npm run dev")
-     (combobulate-highlight-queries-alist
-      (:language tsx :query
-								 "(program\12 (import_statement\12  (import_clause\12   (named_imports\12    (import_specifier (identifier) @hl.default)))))"))))
- '(straight-recipes-gnu-elpa-url "https://github.com/emacsmirror/gnu_elpa")
- '(tab-width 2)
- '(undo-tree-auto-save-history nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:inherit nil :extend nil :stipple nil :background "#000000" :foreground "#ffffff" :inverse-video nil :box nil :strike-through nil :overline nil :underline nil :slant normal :weight regular :height 142 :width normal :foundry "simp" :family "Hack"))))
- '(symex-highlight-face ((t (:extend nil :background "dim gray")))))
+(setq custom-file "~/emacs-custom.el")
 
-
+(load custom-file)
